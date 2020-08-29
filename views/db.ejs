@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <h1>Collections</h1>
+    <%cols.forEach((col)=>{%>
+      <h1><a href="/collections/<%=col.name%>"><%=col.name%></a></h1>
+    <%});%>
+  </body>
+</html>

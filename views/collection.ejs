@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>LiteAdmin</title>
+  </head>
+  <body>
+    <h1>Documents</h1>
+    <%docs.forEach((doc)=>{%>
+      <div class="doc">
+        <h1><%=doc._id%></h1>
+        <%=JSON.stringify(doc,null,4)%>
+      </div>
+    <%});%>
+
+
+  </body>
+</html>
