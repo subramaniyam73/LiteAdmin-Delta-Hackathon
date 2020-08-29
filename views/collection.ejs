@@ -8,11 +8,39 @@
     <h1>Documents</h1>
     <%docs.forEach((doc)=>{%>
       <div class="doc">
-        <h1><%=doc._id%></h1>
-        <%=JSON.stringify(doc,null,4)%>
+        <h1><a href="/<%=collection%>/<%=doc._id%>"><%=doc._id%></a></h1>
+        <h2><%=JSON.stringify(doc,null,8)%></h2>
+
       </div>
     <%});%>
 
+    <div class="insertBox">
+      <form action="/<%=collection%>/insert" method="post">
+        <input type="text" name="keys[]" value="" placeholder="key" required>
+        <input type="text" name="values[]" value="" placeholder="value" required ><br>
+        <input type="text" name="keys[]" value="" placeholder="key" required>
+        <input type="text" name="values[]" value="" placeholder="value" required><br>
+        <input type="text" name="keys[]" value="" placeholder="key" required>
+        <input type="text" name="values[]" value="" placeholder="value" required><br>
 
+        <button type="submit" name="insert">Insert New Document</button>
+      </form>
+    </div>
+
+
+
+  <!-- <script type="text/javascript">
+    docs.forEach((doc)=>{
+      doc.keys.forEach((key)=>{
+        document.appendChild()
+      });
+    });
+  </script> -->
+  <!-- <script type="text/javascript">
+    function add(){
+      var input1=document.createE
+      document.querySelector(".insertBox").appendChild()
+    }
+  </script> -->
   </body>
 </html>

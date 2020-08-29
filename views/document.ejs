@@ -5,7 +5,39 @@
     <title>LiteAdmin-Delta hackathon</title>
   </head>
   <body>
-    
+    <h1>Document</h1>
+    <div class="">
+      <%Object.getOwnPropertyNames(doc).forEach((prop)=>{%>
+        <span><%=prop%></span>  :
+        <%if(typeof doc[prop]=='object'&&doc[prop]!=null){%>
+          {<br>
+            <%Object.getOwnPropertyNames(doc[prop]).forEach((prop2)=>{%>
+              <span><%=prop2%>   :   <%=doc[prop][prop2]%></span><br>
+            <%});%>
+            <br>
+          }<br>
+        <%}else{%>
+          <span><%=prop%>   :   <%=doc[prop]%></span><br>
+        <%}%>
+        <br>
+
+      <%});%>
+
+      <form action="/<%=collection%>/<%=doc._id%>/update" method="post">
+        <h2>Select property to update</h2>
+        <%Object.getOwnPropertyNames(doc).forEach((prop)=>{%>
+          <label for="property"><%=prop%></label>
+          <input type="radio" name="property" value="<%=prop%>" required><br>
+        <%});%>
+        <input type="text" name="propertyValue" value="" placeholder="Enter its new Value" required>
+        <button type="submit" name="button">Edit document</button>
+      </form>
+
+      <form action="/<%=collection%>/<%=doc._id%>/delete" method="post">
+        <button type="submit" name="button">Delete Post</button>
+      </form>
+
+    </div>
 
   </body>
 </html>
