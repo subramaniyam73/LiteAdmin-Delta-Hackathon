@@ -2,15 +2,36 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>LiteAdmin</title>
+    <title>LiteAdmin-Delta-hackathon</title>
+    <link rel="stylesheet" href="/styles.css">
+
   </head>
   <body>
     <h1>Documents</h1>
+
+    <form action="/<%=collection%>/sort" method="post">
+      <p>Select Sorting key</p>
+      <select name="key" required>
+        <%if(docs[0]){%>
+          <%Object.getOwnPropertyNames(docs[0]).forEach((prop)=>{%>
+            <option value="<%=prop%>"><%=prop%></option>
+
+          <%});%>
+        <%}%>
+      </select>
+      <p>Select its value</p>
+      <select name="value" required>
+        <option value="-1">-1</option>
+        <option value="1">1</option>
+
+      </select>
+      <button type="submit" name="sortButton">Sort</button>
+    </form>
+
+
     <%docs.forEach((doc)=>{%>
       <div class="doc">
         <h1><a href="/<%=collection%>/<%=doc._id%>"><%=doc._id%></a></h1>
-        <h2><%=JSON.stringify(doc,null,8)%></h2>
-
       </div>
     <%});%>
 
@@ -25,22 +46,12 @@
 
         <button type="submit" name="insert">Insert New Document</button>
       </form>
-    </div>
+    </div><br><br><br>
+
+    <form action="/<%=collection%>/deleteCollection" method="post">
+      <button type="submit" name="button">Delete Collection</button>
+    </form>
 
 
-
-  <!-- <script type="text/javascript">
-    docs.forEach((doc)=>{
-      doc.keys.forEach((key)=>{
-        document.appendChild()
-      });
-    });
-  </script> -->
-  <!-- <script type="text/javascript">
-    function add(){
-      var input1=document.createE
-      document.querySelector(".insertBox").appendChild()
-    }
-  </script> -->
   </body>
 </html>

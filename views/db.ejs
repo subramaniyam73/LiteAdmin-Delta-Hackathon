@@ -2,12 +2,23 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>LiteAdmin-Delta-hackathon</title>
+    <link rel="stylesheet" href="/styles.css">
+
   </head>
   <body>
     <h1>Collections</h1>
     <%cols.forEach((col)=>{%>
       <h1><a href="/collections/<%=col.name%>"><%=col.name%></a></h1>
     <%});%>
+
+    <br><br>
+
+    <form action="/<%=dataBase%>/addCollection" method="post">
+      <input type="text" name="collection" value="" placeholder="New Collection Name" required><br><br>
+      <button type="submit" name="button">Create Collection</button>
+    </form>
+    <br><br><br>
+
   </body>
 </html>

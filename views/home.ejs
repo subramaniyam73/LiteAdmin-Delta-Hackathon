@@ -2,12 +2,20 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>LiteAdmin-Delta-/hackathon</title>
+    <title>LiteAdmin-Delta-hackathon</title>
+    <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
     <h1>Databases</h1>
     <%dbs.databases.forEach((db)=>{%>
       <h1><a href="/dataBases/<%=db.name%>"><%=db.name%></a></h1>
     <%});%>
+
+    <br><br><br>
+
+    <!-- <form action="/createDataBase" method="post">
+      <input type="text" name="dataBase" value="" placeholder="New DataBase name" required>
+      <button type="submit" name="button">Create DataBase</button>
+    </form> -->
   </body>
 </html>
