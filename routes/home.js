@@ -1,15 +1,20 @@
 const express= require('express');
 const router = express.Router();
 const mongoose=require("mongoose");
+const jsonfile = require('jsonfile');
+var path = require('path');
+var appDir = path.dirname(require.main.filename);
+
 
 const MongoClient = require("mongodb").MongoClient;
 const url = "mongodb://localhost:27017/";
 const client = new MongoClient(url, { useUnifiedTopology: true }); // useUnifiedTopology removes a warning
 const {ObjectId}=require("mongodb");
-
 var currentDB;
+
 var collections=[];
 var collection;
+var sortObject={};
 
 router.get("/", function(req, res){
   // Connect
@@ -25,9 +30,7 @@ router.get("/", function(req, res){
       res.render("home",{dbs:dbs});
       console.log(dbs);
     })
-    // .finally(() => client.close()); // Closing after getting the data});
-
-  });
+});
 
 router.get("/dataBases/:name",(req,res)=>{
   currentDB=req.params.name;
@@ -40,10 +43,10 @@ router.get("/dataBases/:name",(req,res)=>{
       client
       .db(req.params.name)
           .listCollections()
-          .toArray()  // Returns a promise that will resolve to the list of databases
+          .toArray()
     )
     .then(cols => {
-      res.render("db",{cols:cols});
+      res.render("db",{cols:cols,dataBase:req.params.name});
       console.log(cols);
     })
 });
@@ -59,13 +62,14 @@ async function run() {
     const database = client.db(currentDB);
     const collection = database.collection(req.params.name);
 
-    // query for movies that have a runtime less than 15 minutes
     const query = {};
 
-    const cursor = collection.find(query);
+    const options = {
+      sort: sortObject
+    };
 
+    const cursor = collection.find(query,options);
 
-    // print a message if no documents were found
     if ((await cursor.count()) === 0) {
       console.log("No documents found!");
     }
@@ -75,7 +79,7 @@ async function run() {
       docs.push(doc);
     });
 
-    res.render("collection",{docs:docs,collection:req.params.name});
+    res.render("collection",{docs:docs,collection:req.params.name,dataBase:currentDB});
     console.log(docs);
   } finally {
 
@@ -91,12 +95,10 @@ router.get("/:collection/:id",(req,res)=>{
     try {
       await client.connect();
 
-
       console.log(req.params.collection);
       var database = client.db(currentDB);
       var collection = database.collection(req.params.collection);
 
-      // query for movies that have a runtime less than 15 minutes
       var query = {_id: ObjectId(req.params.id)};
 
       var doc = await collection.findOne(query);
@@ -120,13 +122,10 @@ router.post("/:collection/:id/update",(req,res)=>{
     const database = client.db(currentDB);
     const collection = database.collection(req.params.collection);
 
-    // create a filter for a movie to update
     const filter = {_id: ObjectId(req.params.id)};
 
-    // this option instructs the method to create a document if no documents match the filter
     const options = { upsert: true };
 
-    // create a document that sets the plot of the movie
     const property=req.body.property;
     const propertyValue=req.body.propertyValue;
 
@@ -142,7 +141,7 @@ router.post("/:collection/:id/update",(req,res)=>{
 
     const result = await collection.updateOne(filter, updateDoc, options);
     console.log(
-      `${result.matchedCount} document(s) matched the filter, updated ${result.modifiedCount} document(s)`,
+      `${result.matchedCount} documents matched the filter, updated ${result.modifiedCount} document(s)`,
     );
   } finally {
   }
@@ -160,7 +159,7 @@ router.post("/:collection/insert",(req,res)=>{
 
     const database = client.db(currentDB);
     const collection = database.collection(req.params.collection);
-    // create a document to be inserted
+
     const doc = {};
 
     for(let i=0;i<3;i++){
@@ -191,7 +190,6 @@ router.post("/:collection/:id/delete",(req,res)=>{
       const database = client.db(currentDB);
       const collection = database.collection(req.params.collection);
 
-      // Query for a movie that has a title of type string
       const query = {_id:ObjectId(req.params.id)};
 
       const result = await collection.deleteOne(query);
@@ -201,13 +199,84 @@ router.post("/:collection/:id/delete",(req,res)=>{
         console.log("No documents matched the query. Deleted 0 documents.");
       }
     } finally {
-      // await client.close();
     }
   }
   run();
   res.redirect("/"+req.params.collection);
 
 });
+
+router.post("/:dataBase/addCollection",(req,res)=>{
+  client
+    .connect()
+    .then(client =>
+      client
+        .db(req.params.dataBase)
+        .createCollection(req.body.collection)
+        .then(()=>{
+          res.redirect("/dataBases/"+req.params.dataBase);
+        })
+      )
+});
+
+router.post("/:collection/deleteCollection",(req,res)=>{
+  async function run() {
+    try {
+      await client.connect();
+
+      const database = client.db(currentDB);
+      const collection = database.collection(req.params.collection);
+
+      await collection.drop(function(err, delOK) {
+        if (err) throw err;
+        if (delOK) console.log("Collection deleted");
+      });
+
+      res.redirect(`/dataBases/`+currentDB);
+      console.log(docs);
+    } finally {
+
+    }
+  }
+  run();
+});
+
+
+router.post("/:collection/:id/export",(req,res)=>{
+  async function run() {
+  try {
+    await client.connect();
+
+    const database = client.db(currentDB);
+    const collection = database.collection(req.params.collection);
+
+    const query = {_id: ObjectId(req.params.id)};
+
+    const doc = await collection.findOne(query);
+
+    const file=appDir+"/public/export.json";
+
+    await jsonfile.writeFile(file, doc, function (err) {
+      if (err) console.error(err)
+    });
+
+  } finally {
+  }
+}
+run();
+
+res.redirect(`/${req.params.collection}/${req.params.id}`);
+});
+
+router.post("/:collection/sort",(req,res)=>{
+  console.log(sortObject);
+  sortObject={};
+  sortObject[req.body.key]=Number(req.body.value);
+  res.redirect("/collections/"+req.params.collection);
+});
+
+
+
 
 
 module.exports = router;
